@@ -1,0 +1,23 @@
+[33mcommit c56a5299b32cbf72972d435551a91d49b750b6b5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: Adii7012 <adithyan701264@gmail.com>
+Date:   Wed Dec 18 14:12:39 2024 +0530
+
+    created admin student teacher
+
+[33mcommit 4f0d481dfdc6cf74f8df68a47da4efd3aaabe632[m
+Author: Adii7012 <adithyan701264@gmail.com>
+Date:   Wed Dec 18 13:11:51 2024 +0530
+
+    Updated registration page to notify teachers and save data to Firestore
+
+[33mcommit 5402de81760e6ffcc6225341a700c6b51f743e9c[m
+Author: Adii7012 <adithyan701264@gmail.com>
+Date:   Wed Dec 18 02:44:42 2024 +0530
+
+    Day one | Save progress before closing
+
+[33mcommit e6084c0e64c8112299ad785924cff5f22df24a87[m
+Author: Adii7012 <adithyan701264@gmail.com>
+Date:   Tue Dec 17 23:54:05 2024 +0530
+
+    Initial React app setup

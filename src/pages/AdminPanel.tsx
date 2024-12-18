@@ -1,4 +1,3 @@
-// src/pages/AdminPanel.tsx
 import React, { useState, useEffect } from 'react';
 import { firestore } from '../firebaseConfig';
 import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
@@ -10,19 +9,18 @@ const AdminPanel: React.FC = () => {
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-        // Fetch all users and filter for teachers with `status: "pending"`
         const querySnapshot = await getDocs(collection(firestore, 'users'));
         const teacherData: any[] = [];
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data();
-          if (data.role === 'teacher' && data.status === 'pending') {
+          if (data.role === 'teacher') {
             teacherData.push({ id: docSnap.id, ...data });
           }
         });
         setTeachers(teacherData);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching teachers: ", error);
+        console.error('Error fetching teachers:', error);
         setLoading(false);
       }
     };
@@ -30,27 +28,18 @@ const AdminPanel: React.FC = () => {
     fetchTeachers();
   }, []);
 
-  const handleApproval = async (teacherId: string) => {
+  const updateStatus = async (teacherId: string, newStatus: string) => {
     try {
       const teacherRef = doc(firestore, 'users', teacherId);
-      await updateDoc(teacherRef, { status: 'approved' });
-
-      // Remove the approved teacher from the pending list
-      setTeachers(teachers.filter((teacher) => teacher.id !== teacherId));
+      await updateDoc(teacherRef, { status: newStatus });
+      setTeachers((prev) =>
+        prev.map((teacher) =>
+          teacher.id === teacherId ? { ...teacher, status: newStatus } : teacher
+        )
+      );
+      alert(`Teacher status updated to ${newStatus}!`);
     } catch (error) {
-      console.error("Error approving teacher: ", error);
-    }
-  };
-
-  const handleRejection = async (teacherId: string) => {
-    try {
-      const teacherRef = doc(firestore, 'users', teacherId);
-      await updateDoc(teacherRef, { status: 'rejected' });
-
-      // Remove the rejected teacher from the pending list
-      setTeachers(teachers.filter((teacher) => teacher.id !== teacherId));
-    } catch (error) {
-      console.error("Error rejecting teacher: ", error);
+      console.error('Error updating teacher status:', error);
     }
   };
 
@@ -61,21 +50,46 @@ const AdminPanel: React.FC = () => {
   return (
     <div>
       <h1>Admin Panel</h1>
-      <h2>Pending Teacher Approvals</h2>
-      <ul>
-        {teachers.length === 0 ? (
-          <li>No pending teachers</li>
-        ) : (
-          teachers.map((teacher) => (
-            <li key={teacher.id}>
-              <p>Name: {teacher.name}</p>
-              <p>Email: {teacher.email}</p>
-              <button onClick={() => handleApproval(teacher.id)}>Approve</button>
-              <button onClick={() => handleRejection(teacher.id)}>Reject</button>
-            </li>
-          ))
-        )}
-      </ul>
+      <h2>Manage Teachers</h2>
+      <table style={{ border: '1px solid black', borderCollapse: 'collapse', width: '100%' }}>
+  <thead>
+    <tr>
+      <th style={{ border: '1px solid black', padding: '8px' }}>Name</th>
+      <th style={{ border: '1px solid black', padding: '8px' }}>Email</th>
+      <th style={{ border: '1px solid black', padding: '8px' }}>Status</th>
+      <th style={{ border: '1px solid black', padding: '8px' }}>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {teachers.length === 0 ? (
+      <tr>
+        <td colSpan={4} style={{ border: '1px solid black', padding: '8px', textAlign: 'center' }}>
+          No teachers found
+        </td>
+      </tr>
+    ) : (
+      teachers.map((teacher) => (
+        <tr key={teacher.id}>
+          <td style={{ border: '1px solid black', padding: '8px' }}>{teacher.name}</td>
+          <td style={{ border: '1px solid black', padding: '8px' }}>{teacher.email}</td>
+          <td style={{ border: '1px solid black', padding: '8px' }}>{teacher.status}</td>
+          <td style={{ border: '1px solid black', padding: '8px' }}>
+            {teacher.status === 'pending' ? (
+              <>
+                <button onClick={() => updateStatus(teacher.id, 'approved')}>Approve</button>
+                <button onClick={() => updateStatus(teacher.id, 'rejected')}>Reject</button>
+              </>
+            ) : teacher.status === 'approved' ? (
+              <button onClick={() => updateStatus(teacher.id, 'pending')}>Unapprove</button>
+            ) : (
+              <button onClick={() => updateStatus(teacher.id, 'approved')}>Approve</button>
+            )}
+          </td>
+        </tr>
+      ))
+    )}
+  </tbody>
+</table>
     </div>
   );
 };
