@@ -10,7 +10,7 @@ const AdminPanel: React.FC = () => {
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-        // Fetch all users and filter for teachers with status "pending"
+        // Fetch all users and filter for teachers with `status: "pending"`
         const querySnapshot = await getDocs(collection(firestore, 'users'));
         const teacherData: any[] = [];
         querySnapshot.forEach((docSnap) => {
@@ -36,7 +36,7 @@ const AdminPanel: React.FC = () => {
       await updateDoc(teacherRef, { status: 'approved' });
 
       // Remove the approved teacher from the pending list
-      setTeachers(teachers.filter(teacher => teacher.id !== teacherId));
+      setTeachers(teachers.filter((teacher) => teacher.id !== teacherId));
     } catch (error) {
       console.error("Error approving teacher: ", error);
     }
@@ -48,7 +48,7 @@ const AdminPanel: React.FC = () => {
       await updateDoc(teacherRef, { status: 'rejected' });
 
       // Remove the rejected teacher from the pending list
-      setTeachers(teachers.filter(teacher => teacher.id !== teacherId));
+      setTeachers(teachers.filter((teacher) => teacher.id !== teacherId));
     } catch (error) {
       console.error("Error rejecting teacher: ", error);
     }
@@ -61,7 +61,7 @@ const AdminPanel: React.FC = () => {
   return (
     <div>
       <h1>Admin Panel</h1>
-      <h2>Pending Teachers</h2>
+      <h2>Pending Teacher Approvals</h2>
       <ul>
         {teachers.length === 0 ? (
           <li>No pending teachers</li>

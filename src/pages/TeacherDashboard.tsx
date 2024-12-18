@@ -20,7 +20,7 @@ const TeacherDashboard: React.FC = () => {
           const role = userData?.role;
 
           // Check if the teacher is approved
-          if (role === 'teacher' && userData?.role === 'approved') {
+          if (role === 'teacher' && userData?.status === 'approved') {
             setIsApproved(true);
           } else {
             setIsApproved(false);

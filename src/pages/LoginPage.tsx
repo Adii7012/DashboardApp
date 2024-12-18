@@ -1,69 +1,82 @@
-// src/pages/LoginPage.tsx
 import React, { useState } from 'react';
-import { auth } from '../firebaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
-import { firestore } from '../firebaseConfig';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { getDoc, doc } from 'firebase/firestore';
+import { auth, firestore } from '../firebaseConfig';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
     try {
-      // Sign in with Firebase Authentication
+      // Authenticate with Firebase Auth
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Check if the user is an admin by fetching user role from Firestore
-      const userDocRef = doc(firestore, 'users', user.uid);
-      const docSnapshot = await getDoc(userDocRef);
-      if (docSnapshot.exists()) {
-        const userData = docSnapshot.data();
-        const role = userData?.role;
+      // Fetch user data from Firestore
+      const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+      if (!userDoc.exists()) {
+        setError('User data not found. Please contact support.');
+        return;
+      }
 
-        if (role === 'admin') {
-          navigate('/admin-panel');  // Redirect to admin panel
-        } else if (role === 'teacher') {
-          navigate('/teacher-dashboard');  // Redirect to teacher dashboard
+      const userData = userDoc.data();
+      const role = userData?.role;
+
+      // Check if the user is a teacher
+      if (role === 'teacher') {
+        if (userData?.status === 'approved') {
+          // If the teacher is approved, navigate to the teacher dashboard
+          navigate('/teacher-dashboard');
         } else {
-          navigate('/student-dashboard');  // Redirect to student dashboard
+          // If the teacher is not approved
+          setError('Your account is pending approval. Please wait for admin approval.');
         }
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        alert('Failed to login: ' + error.message);
+      } else if (role === 'student') {
+        // If the user is a student, navigate to the student dashboard
+        navigate('/student-dashboard');
+      } else if (role === 'admin') {
+        // If the user is an admin, navigate to the admin panel
+        navigate('/admin-panel');
       } else {
-        alert('An unknown error occurred during login.');
+        setError('Invalid account status. Please contact support.');
       }
+    } catch (err: any) {
+      setError(err.message || 'Failed to login.');
     }
   };
 
   return (
     <div>
-      <h1>Login Page</h1>
+      <h1>Login</h1>
       <form onSubmit={handleLogin}>
         <div>
-          <label>Email</label>
+          <label>Email:</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </div>
         <div>
-          <label>Password</label>
+          <label>Password:</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </div>
         <button type="submit">Login</button>
       </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <div>
         <p>Don't have an account? <a href="/register">Register here</a></p>
       </div>
