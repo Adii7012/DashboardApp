@@ -1,38 +1,121 @@
-/* Style the entire dashboard */
-.teacher-dashboard {
+/* TeacherDashboard.css */
+
+/* Folder display in a row */
+.folder-container {
+  display: flex;
+  flex-wrap: wrap; /* Allow multiple rows if needed */
+  gap: 20px; /* Space between folders */
+  margin-top: 30px;
+  margin-bottom: 30px;
+  margin-left: 30px;
+  justify-content: space-between; /* Align folders properly */
+}
+
+.folder-container .folder {
+  flex: 1 1 calc(33% - 20px); /* Folders take up equal space and wrap on smaller screens */
   padding: 20px;
-  font-family: Arial, sans-serif;
-}
-
-/* Folder grid layout */
-.folder-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Two folders per row */
-  gap: 16px; /* Space between folders */
-  margin-top: 20px;
-}
-
-/* Individual folder card */
-.folder-card {
-  background-color: #ffffff;
+  background-color: #f9f9f9;
+  border-radius: 5px;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 16px;
   text-align: center;
-  font-size: 18px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-width: 250px; /* Prevent folders from getting too small */
+}
+
+.folder-container .folder button {
+  margin-top: 10px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-/* Hover effect for folder cards */
-.folder-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+.folder-container .folder button:hover {
+  background-color: #c0392b;
 }
 
-/* No folders message */
-.folder-grid p {
-  font-size: 16px;
-  color: #888;
+/* File and Upload Section Layout */
+.upload-container {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+  justify-content: space-between; /* Align file list and upload form evenly */
+}
+
+.upload-container .file-list {
+  flex: 3; /* 3/4 of the space */
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  height: 400px;
+  overflow-y: auto; /* Allow scrolling for long file lists */
+}
+
+.upload-container .file-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.upload-container .file-list li {
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #e1e1e1;
+  border-radius: 5px;
+  font-size: 14px;
+  word-wrap: break-word;
+}
+
+.upload-container .upload-form {
+  flex: 1; /* 1/4 of the space */
+  width: 300px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  min-width: 280px; /* Prevent shrinking too small */
+}
+
+.upload-container .upload-form input,
+.upload-container .upload-form textarea,
+.upload-container .upload-form button {
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.upload-container .upload-form button {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.upload-container .upload-form button:hover {
+  background-color: #2ecc71;
+}
+
+/* Additional styles for responsiveness */
+@media (max-width: 1200px) {
+  .folder-container .folder {
+    flex: 1 1 calc(50% - 20px); /* 2 items per row on medium screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .folder-container .folder {
+    flex: 1 1 100%; /* Single column on small screens */
+  }
+
+  .upload-container {
+    flex-direction: column; /* Stack file list and upload form */
+    gap: 10px;
+  }
+
+  .upload-container .file-list,
+  .upload-container .upload-form {
+    flex: 1 1 100%;
+  }
 }
