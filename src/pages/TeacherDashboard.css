@@ -1,0 +1,38 @@
+/* Style the entire dashboard */
+.teacher-dashboard {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Folder grid layout */
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two folders per row */
+  gap: 16px; /* Space between folders */
+  margin-top: 20px;
+}
+
+/* Individual folder card */
+.folder-card {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  font-size: 18px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+/* Hover effect for folder cards */
+.folder-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* No folders message */
+.folder-grid p {
+  font-size: 16px;
+  color: #888;
+}

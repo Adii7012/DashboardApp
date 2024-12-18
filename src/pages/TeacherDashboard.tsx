@@ -1,46 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { auth, firestore } from '../firebaseConfig'; // Ensure Firebase is correctly imported
-import { doc, getDoc } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import { firestore } from '../firebaseConfig';
+import { collection, getDocs } from 'firebase/firestore';
+import AddFolderButton from '../components/AddFolderButton'; // Adjust path if necessary
+import './TeacherDashboard.css'; // Import the CSS file for styling
 
 const TeacherDashboard: React.FC = () => {
-  const [isApproved, setIsApproved] = useState(false);
-  const navigate = useNavigate();
+  const [folders, setFolders] = useState<any[]>([]);
 
+  // Fetch folders from Firestore
   useEffect(() => {
-    const checkApproval = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        // Get user data from Firestore
-        const userDocRef = doc(firestore, 'users', user.uid);
-        const docSnapshot = await getDoc(userDocRef);
-
-        if (docSnapshot.exists()) {
-          const userData = docSnapshot.data();
-          const role = userData?.role;
-
-          // Check if the teacher is approved
-          if (role === 'teacher' && userData?.status === 'approved') {
-            setIsApproved(true);
-          } else {
-            setIsApproved(false);
-            navigate('/'); // Redirect if not approved
-          }
-        }
+    const fetchFolders = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(firestore, 'folders'));
+        const folderData: any[] = [];
+        querySnapshot.forEach((docSnap) => {
+          folderData.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        setFolders(folderData);
+      } catch (error) {
+        console.error('Error fetching folders:', error);
       }
     };
 
-    checkApproval();
-  }, [navigate]);
-
-  if (!isApproved) {
-    return <div>Your account is under review. Please wait for approval notification in your email.</div>;
-  }
+    fetchFolders();
+  }, []);
 
   return (
-    <div>
-      <h1>Welcome to the Teacher Dashboard</h1>
-      {/* Teacher's dashboard content here */}
+    <div className="dashboard-container">
+      <h1>Teacher Dashboard</h1>
+      <AddFolderButton />
+
+      <h2>Available Folders</h2>
+      <div className="folder-grid">
+        {folders.length === 0 ? (
+          <p>No folders available</p>
+        ) : (
+          folders.map((folder) => (
+            <div className="folder-card" key={folder.id}>
+              <h3>{folder.name}</h3>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };

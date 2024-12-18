@@ -1,0 +1,36 @@
+/* StudentDashboard.css */
+
+.student-dashboard {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .student-dashboard h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .folder-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two folders in a row */
+    gap: 20px;
+    padding: 10px;
+  }
+  
+  .folder {
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+  
+  .folder:hover {
+    transform: scale(1.05);
+    background-color: #e0f7fa;
+  }
+  
