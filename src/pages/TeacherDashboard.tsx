@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { firestore, storage, auth } from '../firebaseConfig'; // Import storage and auth
-import { collection, getDocs, deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, getDoc, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import AddFolderButton from '../components/AddFolderButton';
 import './TeacherDashboard.css'; // Import the CSS file for styling
@@ -13,6 +13,7 @@ const TeacherDashboard: React.FC = () => {
   const [fileName, setFileName] = useState<string>('');
   const [fileDescription, setFileDescription] = useState<string>('');
   const [currentUserRole, setCurrentUserRole] = useState<string>('');
+  const [isUploading, setIsUploading] = useState<boolean>(false); // State to track upload status
 
   // Fetch folders from Firestore
   useEffect(() => {
@@ -73,13 +74,18 @@ const TeacherDashboard: React.FC = () => {
 
   // Handle file upload
   const handleFileUpload = async () => {
-    if (!fileToUpload || !selectedFolder) return;
+    if (!fileToUpload || !selectedFolder) {
+      alert('Please select a file and folder first.');
+      return;
+    }
+
+    setIsUploading(true); // Start uploading
 
     try {
       const fileRef = ref(storage, `folders/${selectedFolder.id}/${fileToUpload.name}`);
-      await uploadBytes(fileRef, fileToUpload);
+      await uploadBytes(fileRef, fileToUpload);  // Upload the file to Firebase Storage
 
-      const fileUrl = await getDownloadURL(fileRef);
+      const fileUrl = await getDownloadURL(fileRef);  // Get the download URL of the file
       const fileDocRef = doc(collection(firestore, 'folders', selectedFolder.id, 'files'));
 
       await setDoc(fileDocRef, {
@@ -89,11 +95,20 @@ const TeacherDashboard: React.FC = () => {
         createdAt: new Date(),
       });
 
-      setFiles((prevFiles) => [...prevFiles, { name: fileName || fileToUpload.name, url: fileUrl, description: fileDescription }]);
+      // Update the file list state
+      setFiles((prevFiles) => [
+        ...prevFiles,
+        { name: fileName || fileToUpload.name, url: fileUrl, description: fileDescription },
+      ]);
 
-      alert('File uploaded successfully');
+      // Alert on success
+      alert('File uploaded successfully!');
     } catch (error) {
       console.error('Error uploading file:', error);
+      // Alert on failure
+      alert('File upload failed. Please try again.');
+    } finally {
+      setIsUploading(false); // Stop uploading, whether successful or failed
     }
   };
 
@@ -120,12 +135,11 @@ const TeacherDashboard: React.FC = () => {
 
   return (
     <div>
-      <h1>Teacher Dashboard</h1>
-      <h2>Available Folders</h2>
-
-      <AddFolderButton />
-
       <div className="folder-container">
+        <h1>Teacher Dashboard</h1>
+        <h2>Available Folders</h2>
+        <AddFolderButton />
+
         {folders.length === 0 ? (
           <p>No folders available</p>
         ) : (
@@ -171,7 +185,9 @@ const TeacherDashboard: React.FC = () => {
               onChange={(e) => setFileDescription(e.target.value)}
             ></textarea>
             <input type="file" onChange={handleFileChange} />
-            <button onClick={handleFileUpload}>Upload File</button>
+            <button onClick={handleFileUpload} disabled={isUploading}>
+              {isUploading ? 'Uploading...' : 'Upload File'}
+            </button>
           </div>
         </div>
       )}
