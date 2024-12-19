@@ -79,16 +79,18 @@ const TeacherDashboard: React.FC = () => {
       return;
     }
 
-    setIsUploading(true); // Start uploading
+    setIsUploading(true); // Start the loading state
 
     try {
+      // Upload the file to Firebase Storage
       const fileRef = ref(storage, `folders/${selectedFolder.id}/${fileToUpload.name}`);
-      await uploadBytes(fileRef, fileToUpload);  // Upload the file to Firebase Storage
+      await uploadBytes(fileRef, fileToUpload);
 
-      const fileUrl = await getDownloadURL(fileRef);  // Get the download URL of the file
-      const fileDocRef = doc(collection(firestore, 'folders', selectedFolder.id, 'files'));
+      // Get the download URL of the uploaded file
+      const fileUrl = await getDownloadURL(fileRef);
 
-      await setDoc(fileDocRef, {
+      // Add the file document to Firestore
+      const fileDocRef = await addDoc(collection(firestore, 'folders', selectedFolder.id, 'files'), {
         name: fileName || fileToUpload.name,
         description: fileDescription,
         url: fileUrl,
@@ -98,17 +100,17 @@ const TeacherDashboard: React.FC = () => {
       // Update the file list state
       setFiles((prevFiles) => [
         ...prevFiles,
-        { name: fileName || fileToUpload.name, url: fileUrl, description: fileDescription },
+        { id: fileDocRef.id, name: fileName || fileToUpload.name, url: fileUrl, description: fileDescription },
       ]);
 
-      // Alert on success
+      // Show success alert
       alert('File uploaded successfully!');
     } catch (error) {
       console.error('Error uploading file:', error);
-      // Alert on failure
+      // Show failure alert
       alert('File upload failed. Please try again.');
     } finally {
-      setIsUploading(false); // Stop uploading, whether successful or failed
+      setIsUploading(false); // End the loading state
     }
   };
 
@@ -139,7 +141,6 @@ const TeacherDashboard: React.FC = () => {
         <h1>Teacher Dashboard</h1>
         <h2>Available Folders</h2>
         <AddFolderButton />
-
         {folders.length === 0 ? (
           <p>No folders available</p>
         ) : (
@@ -185,9 +186,13 @@ const TeacherDashboard: React.FC = () => {
               onChange={(e) => setFileDescription(e.target.value)}
             ></textarea>
             <input type="file" onChange={handleFileChange} />
-            <button onClick={handleFileUpload} disabled={isUploading}>
+            <button 
+              onClick={handleFileUpload} 
+              disabled={!fileToUpload || isUploading} // Disable if no file is selected or if uploading
+            >
               {isUploading ? 'Uploading...' : 'Upload File'}
             </button>
+            {isUploading && <div className="spinner"></div>} {/* Circular spinner */}
           </div>
         </div>
       )}
